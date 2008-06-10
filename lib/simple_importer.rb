@@ -8,7 +8,6 @@ require 'csv'
 
 module SimpleImporter
   def file(path)
-    # path = File.join(RAILS_ROOT, 'data', path)
     file = File.open(path)
     yield file if block_given?
     file.close
