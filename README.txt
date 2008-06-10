@@ -13,8 +13,8 @@ Simple API for importing from csv, tsv and xml.
 == SYNOPSIS:
 
 # extend your import modules and define import methods
-module XmlImporter
-  extend SimpleImporter
+module SpecialImporter
+  extend AccessoryImporter
 
   # if true is passed to run, reset will get called first if it exists.
   def self.reset

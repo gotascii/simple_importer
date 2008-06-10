@@ -8,29 +8,38 @@ require 'csv'
 
 module SimpleImporter
   def file(path)
-    path = File.join(RAILS_ROOT, 'data', path)
+    # path = File.join(RAILS_ROOT, 'data', path)
     file = File.open(path)
     yield file if block_given?
     file.close
   end
 
-  def csv(path)
+  def csv(path, &block)
     file(path) do |f|
       parsed_file = CSV::Reader.parse(f)
-      parsed_file.each do |row|
-        row.each {|v| v.trim! if v.respond_to? :trim! }
-        yield row if block_given?
-      end
+      process_rows(parsed_file, &block)
+      # parsed_file.each do |row|
+      #   row.each {|v| v.trim! if v.respond_to? :trim! }
+      #   yield row if block_given?
+      # end
     end
   end
 
-  def tsv(path)
+  def tsv(path, &block)
     file(path) do |f|
-      parsed_file = CSV::Reader.parse(f)
-      parsed_file.each do |row|
-        row.each {|v| v.trim! if v.respond_to? :trim! }
-        yield row if block_given?
-      end
+      parsed_file = CSV::Reader.parse(f, "\t")
+      process_rows(parsed_file, &block)
+      # parsed_file.each do |row|
+      #   row.each {|v| v.trim! if v.respond_to? :trim! }
+      #   yield row if block_given?
+      # end
+    end
+  end
+
+  def process_rows(parsed_file, &block)
+    parsed_file.each do |row|
+      row.each {|v| v.trim! if v.respond_to? :trim! }
+      yield row if block_given?
     end
   end
 
