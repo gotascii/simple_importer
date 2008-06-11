@@ -13,30 +13,23 @@ module SimpleImporter
     file.close
   end
 
-  def csv(path, &block)
+  def csv(path, *args, &block)
     file(path) do |f|
       parsed_file = CSV::Reader.parse(f)
-      process_rows(parsed_file, &block)
-      # parsed_file.each do |row|
-      #   row.each {|v| v.trim! if v.respond_to? :trim! }
-      #   yield row if block_given?
-      # end
+      process_rows(parsed_file, !args.empty?, &block)
     end
   end
 
-  def tsv(path, &block)
+  def tsv(path, *args, &block)
     file(path) do |f|
       parsed_file = CSV::Reader.parse(f, "\t")
-      process_rows(parsed_file, &block)
-      # parsed_file.each do |row|
-      #   row.each {|v| v.trim! if v.respond_to? :trim! }
-      #   yield row if block_given?
-      # end
+      process_rows(parsed_file, !args.empty?, &block)
     end
   end
 
-  def process_rows(parsed_file, &block)
-    parsed_file.each do |row|
+  def process_rows(parsed_file, ignore_header, &block)
+    parsed_file.shift if ignore_header
+    parsed_file.each do |row|    
       row.each {|v| v.trim! if v.respond_to? :trim! }
       yield row if block_given?
     end
