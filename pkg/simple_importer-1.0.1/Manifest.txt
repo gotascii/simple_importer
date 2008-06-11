@@ -1,0 +1,17 @@
+History.txt
+Manifest.txt
+README.txt
+Rakefile
+lib/simple_importer.rb
+tasks/ann.rake
+tasks/annotations.rake
+tasks/bones.rake
+tasks/doc.rake
+tasks/gem.rake
+tasks/manifest.rake
+tasks/post_load.rake
+tasks/rubyforge.rake
+tasks/setup.rb
+tasks/test.rake
+test/test_helper.rb
+test/test_simple_importer.rb
