@@ -1,6 +1,6 @@
 simple_importer
     by Justin Marney
-    FIXME (url)
+    http://github.com/gotascii/simple_importer/
 
 == DESCRIPTION:
 
@@ -46,7 +46,7 @@ test/spec and mocha are required to run the tests.
 
 == INSTALL:
 
-* FIXME (sudo gem install, anything else)
+sudo gem install gotascii-simple_importer -s http://gems.github.com
 
 == LICENSE:
 

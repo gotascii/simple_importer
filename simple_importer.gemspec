@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.extra_rdoc_files = ["History.txt", "README.txt"]
   s.files = ["History.txt", "Manifest.txt", "README.txt", "Rakefile", "lib/simple_importer.rb", "tasks/ann.rake", "tasks/annotations.rake", "tasks/bones.rake", "tasks/doc.rake", "tasks/gem.rake", "tasks/manifest.rake", "tasks/post_load.rake", "tasks/rubyforge.rake", "tasks/setup.rb", "tasks/test.rake", "test/test_helper.rb", "test/test_simple_importer.rb"]
   s.has_rdoc = true
-  s.homepage = %q{FIXME (project homepage)}
+  s.homepage = %q{http://github.com/gotascii/simple_importer/}
   s.rdoc_options = ["--main", "README.txt"]
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{simple_importer}
