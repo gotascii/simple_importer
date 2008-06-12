@@ -1,6 +1,6 @@
 simple_importer
     by Justin Marney
-    http://github.com/gotascii/simple_importer/
+    http://github.com/vigetlabs/simple_importer/
 
 == DESCRIPTION:
 
@@ -39,6 +39,9 @@ end
 # run your import modules (from a rake task perhaps)
 XmlImporter.run
 
+The csv & tsv import methods also take an optional (default false) boolean
+parameter that indicates whether or not to ignore the header (first) line.
+
 == REQUIREMENTS:
 
 Hpricot is required if you intend to import xml.
@@ -46,7 +49,7 @@ test/spec and mocha are required to run the tests.
 
 == INSTALL:
 
-sudo gem install gotascii-simple_importer -s http://gems.github.com
+sudo gem install vigetlabs-simple_importer -s http://gems.github.com
 
 == LICENSE:
 
