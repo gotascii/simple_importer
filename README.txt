@@ -13,8 +13,8 @@ Simple API for importing from csv, tsv and xml.
 == SYNOPSIS:
 
 # extend your import modules and define import methods
-module SpecialImporter
-  extend AccessoryImporter
+module AccessoryImporter
+  extend SimpleImporter
 
   # if true is passed to run, reset will get called first if it exists.
   def self.reset
@@ -37,7 +37,7 @@ module SpecialImporter
 end
 
 # run your import modules (from a rake task perhaps)
-XmlImporter.run
+AccessoryImporter.run
 
 The csv & tsv import methods also take an optional (default false) boolean
 parameter that indicates whether or not to ignore the header (first) line.
