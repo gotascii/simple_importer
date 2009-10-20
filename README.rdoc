@@ -1,0 +1,56 @@
+= simple_importer
+
+Simple API for importing from csv, tsv and xml.
+
+== Usage
+
+extend your import modules and define import methods
+  module AccessoryImporter
+    extend SimpleImporter
+
+    # if true is passed to run, reset will get called first if it exists.
+    def self.reset
+      Accessory.find(:all).each {|a| a.destroy }
+    end
+
+    def self.import
+      csv('Accessory Schema.csv') do |row|
+        unless row[0].nil? || row[0] == 'SKU'
+          accessory = Accessory.create!(:sku => row[0],
+          :image => row[1],
+          :thumbnail_image => row[2],
+          :name => row[3],
+          :supplier_cost => row[4],
+          :retail_cost => row[5],
+          :description => row[6])
+        end
+      end
+    end
+  end
+
+run your import modules (from a rake task perhaps)
+  AccessoryImporter.run
+
+The csv & tsv import methods also take an optional (default false) boolean parameter that indicates whether or not to ignore the header (first) line.
+
+There are a bunch of helpful api methods, check the tests for more info.
+
+== Requirements
+
+* hpricot is required if you intend to import xml.
+* test/spec and mocha are required to run the tests.
+
+== Note on Patches/Pull Requests 
+
+* Fork the project.
+* Make your feature addition or bug fix.
+* Add tests for it. This is important so I don't break it in a
+  future version unintentionally.
+* Commit, do not mess with rakefile, version, or history.
+  (if you want to have your own version, that is fine but
+  bump version in a commit by itself I can ignore when I pull)
+* Send me a pull request. Bonus points for topic branches.
+
+== Copyright
+
+Copyright (c) 2009 Justin Marney. See LICENSE for details.
