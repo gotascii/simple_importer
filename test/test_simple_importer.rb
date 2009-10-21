@@ -10,8 +10,8 @@ class SimpleImporterTest < Test::Unit::TestCase
       SimpleImporter.importers.clear
     end
 
-    should "have an importers array field" do
-      SimpleImporter.importers.should == []
+    should "have an importers hash field" do
+      SimpleImporter.importers.should == {}
     end
 
     should "create a new importer" do
@@ -22,14 +22,38 @@ class SimpleImporterTest < Test::Unit::TestCase
 
     should "add new importer to importers" do
       SimpleImporter::Importer.stubs(:new).returns('hi')
-      SimpleImporter.importers.expects(:<<).with('hi')
       SimpleImporter.importer(:bob)
+      SimpleImporter.importers[:bob].should == 'hi'
+    end
+
+    should "look in importer, app/importers, and lib/importers for importers" do
+      SimpleImporter.importer_paths.should == %w{importers app/importers lib/importers}
+    end
+
+    should "return csv default options for csv_config_methods" do
+      SimpleImporter.csv_config_meths.should == CSV::DEFAULT_OPTIONS.keys
+    end
+
+    should "return csv_config_meths plus file and callbacks for config_meths" do
+      SimpleImporter.stubs(:csv_config_meths).returns([:yo])
+      SimpleImporter.config_meths.should == [:yo, :file, :callbacks]
+    end
+
+    should "forward [] to importers" do
+      SimpleImporter.importers.expects(:[]).with(:omg).returns('hey')
+      SimpleImporter[:omg].should == 'hey'
     end
   end
 
   context "An instance of the CrazyImporter class" do
     setup do
       @importer = CrazyImporter.new
+    end
+
+    should "return kv pairs where key is in SimpleImporter.csv_config_meths for csv_config" do
+      @importer.csv_config.keys.each do |k|
+        SimpleImporter.csv_config_meths.include?(k).should be(true)
+      end
     end
 
     should "have fields for every CSV::DEFAULT_OPTIONS" do
@@ -93,6 +117,19 @@ class SimpleImporterTest < Test::Unit::TestCase
       @importer.config[:before] = nil
       @importer.callbacks true
       @importer.run_callbacks
+    end
+
+    should "run callbacks when run" do
+      CSV.stubs(:foreach)
+      @importer.expects(:run_callbacks)
+      @importer.run
+    end
+
+    should "call CSV.foreach with file, csv_config when run" do
+      @importer.stubs(:file).returns('file')
+      @importer.stubs(:csv_config).returns('csv_config')
+      CSV.expects(:foreach).with('file', 'csv_config')
+      @importer.run
     end
   end
 
