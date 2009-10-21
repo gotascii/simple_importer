@@ -1,43 +1,104 @@
 require 'test_helper'
 
-module CrazyImporter
-  extend SimpleImporter
+class CrazyImporter
+  include SimpleImporter
 end
 
-context "CrazyImporter" do
-  specify "should parse a comma separated file" do
-    rows = []
-    CrazyImporter.csv(File.join(File.dirname(__FILE__), 'csv.txt')) do |row|
-      row.length.should.equal 3
-      rows << row
+class SimpleImporterTest < Test::Unit::TestCase
+  context "The SimpleImporter module" do
+    setup do
+      SimpleImporter.importers.clear
     end
-    rows.length.should.equal 2
+
+    should "have an importers array field" do
+      SimpleImporter.importers.should == []
+    end
+
+    should "create a new importer" do
+      block = lambda{ 'omg' }
+      SimpleImporter::Importer.expects(:new).with(&block)
+      SimpleImporter.importer(:bob, &block)
+    end
+
+    should "add new importer to importers" do
+      SimpleImporter::Importer.stubs(:new).returns('hi')
+      SimpleImporter.importers.expects(:<<).with('hi')
+      SimpleImporter.importer(:bob)
+    end
   end
 
-  specify "should ignore header line in csv" do
-    rows = []
-    CrazyImporter.csv(File.join(File.dirname(__FILE__), 'csv.txt'), true) do |row|
-      row[0].should.equal "dude"
-      rows << row
+  context "An instance of the CrazyImporter class" do
+    setup do
+      @importer = CrazyImporter.new
     end
-    rows.length.should.equal 1
+
+    should "have fields for every CSV::DEFAULT_OPTIONS" do
+      CSV::DEFAULT_OPTIONS.keys.each do |meth|
+        @importer.send(meth, 'val')
+        @importer.send(meth).should == 'val'
+      end
+    end
+
+    should "have a file field" do
+      @importer.file 'file'
+      @importer.file.should == 'file'
+    end
+
+    should "have a callbacks field" do
+      @importer.callbacks true
+      @importer.callbacks.should be(true)
+    end
+    
+    should "execute callbacks by default" do
+      @importer.callbacks.should be(true)
+    end
+
+    should "create headers by default" do
+      @importer.headers.should be(true)
+    end
+
+    should "execute symbol header_converters by default" do
+      @importer.header_converters.should == :symbol
+    end
+
+    should "execute all converters by default" do
+      @importer.converters.should == :all
+    end
+
+    should "save block passed to before in before field" do
+      @importer.before { 'blazer' }
+      @importer.before.call.should == 'blazer'
+    end
+
+    should "save block passed to foreach in foreach field" do
+      @importer.foreach { 'blazer' }
+      @importer.foreach.call.should == 'blazer'
+    end
+
+    should "not run callbacks if callbacks is false" do
+      before = mock { expects(:call).never }
+      @importer.stubs(:before => before)
+      @importer.callbacks false
+      @importer.run_callbacks
+    end
+
+    should "run callbacks if callbacks is true" do
+      before = mock { expects(:call) }
+      @importer.stubs(:before => before)
+      @importer.callbacks true
+      @importer.run_callbacks
+    end
+
+    should "not run callbacks if callbacks is true and there are no callbacks" do
+      @importer.config[:before] = nil
+      @importer.callbacks true
+      @importer.run_callbacks
+    end
   end
 
-  specify "should parse a tab separated file" do
-    rows = []
-    CrazyImporter.tsv(File.join(File.dirname(__FILE__), 'tab.txt')) do |row|
-      row.length.should.equal 4
-      rows << row
+  context "The Importer class" do
+    should "include SimpleImporter" do
+      SimpleImporter::Importer.ancestors.include?(SimpleImporter)
     end
-    rows.length.should.equal 2
-  end
-
-  specify "should ignore header line in tsv" do
-    rows = []
-    CrazyImporter.tsv(File.join(File.dirname(__FILE__), 'tab.txt'), true) do |row|
-      row[0].should.equal "seriously"
-      rows << row
-    end
-    rows.length.should.equal 1
   end
 end

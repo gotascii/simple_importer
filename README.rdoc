@@ -1,44 +1,39 @@
 = simple_importer
 
-Simple API for importing from csv, tsv and xml.
+Simple API for importing csv files.
 
 == Usage
 
-extend your import modules and define import methods
-  module AccessoryImporter
-    extend SimpleImporter
+define custom importers by including simple_importer
+  class CrazyImporter
+    include SimpleImporter
 
-    # if true is passed to run, reset will get called first if it exists.
-    def self.reset
-      Accessory.find(:all).each {|a| a.destroy }
+    file 'data.csv'
+    callbacks true
+    headers true
+    header_converters :symbol
+    converters :all
+
+    before_import :delete_all
+
+    foreach do |row|
     end
 
-    def self.import
-      csv('Accessory Schema.csv') do |row|
-        unless row[0].nil? || row[0] == 'SKU'
-          accessory = Accessory.create!(:sku => row[0],
-          :image => row[1],
-          :thumbnail_image => row[2],
-          :name => row[3],
-          :supplier_cost => row[4],
-          :retail_cost => row[5],
-          :description => row[6])
-        end
-      end
+    def delete_all
     end
   end
 
-run your import modules (from a rake task perhaps)
-  AccessoryImporter.run
+run your importers
+  CrazyImporter.run
 
-The csv & tsv import methods also take an optional (default false) boolean parameter that indicates whether or not to ignore the header (first) line.
+== TODO
 
-There are a bunch of helpful api methods, check the tests for more info.
+find files automatically
+rake tasks generated automatically
 
 == Requirements
 
-* hpricot is required if you intend to import xml.
-* test/spec and mocha are required to run the tests.
+* fast_csv (if you are not using ruby 1.9)
 
 == Note on Patches/Pull Requests 
 

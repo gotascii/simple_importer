@@ -1,4 +1,5 @@
 require 'rubygems'
-require 'test/spec'
+require 'shoulda'
+require 'matchy'
 require 'mocha'
 require 'simple_importer'
