@@ -1,6 +1,6 @@
 namespace :simple_importer do
   desc "Some bone ter"
   task :bonater do
-    puts SimpleImporter.inspect
+    require File.join(File.dirname(__FILE__), '..', 'simple_importer')
   end
 end
