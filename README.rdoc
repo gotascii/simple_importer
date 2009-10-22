@@ -14,7 +14,7 @@ The basic importer has a name, file, and a foreach block.
     end
   end
 
-simple_importer uses fastercsv, which replaces the csv standard lib in ruby1.9. Importers have configuration options that match those of fastercsv. The foreach block is called for each row in the csv file. The argument passed into the foreach block is a fastercsv row created with the specified configuration options.
+simple_importer uses fastercsv, which replaces the csv standard lib in ruby1.9. Importers have configuration options that match those of fastercsv. The foreach block is called for each row in the csv file. The argument passed into the foreach block is a fastercsv row created with the specified configuration.
 
   importer :items do
     file 'items.csv'
@@ -46,6 +46,7 @@ Importers have a default configuration that matches the following importer.
     header_converters :symbol
     skip_blanks false
     force_quotes false
+    # end default configuration
 
     foreach do |row|
       Item.create(:name => row[:name])
@@ -54,7 +55,7 @@ Importers have a default configuration that matches the following importer.
 
 == Before callback
 
-Define before_filter-style callbacks in the form of the before block. This block is run once before the importer run.
+Define before_filter-style callbacks in the form of the before block. This block is run once before the importer runs.
 
   importer :items do
     file 'items.csv'
@@ -110,12 +111,12 @@ Nest the foreach block to give your row processing block access to foreach_file 
 
 == Loading and running importers
 
-simple_importer provides a method that will find and load importer definitions in importers, lib/importers, and app/importers directories.
+simple_importer provides a method that will find and load importer definitions in the importers, lib/importers, and app/importers directories.
 
   # importer definition is in lib/importers/item.rb
   SimpleImporter.find_importers
 
-SimpleImporter has a collection of importers and each importer can be run once it has been loaded.
+SimpleImporter now has a collection of importers and each importer can be run now that it has been loaded.
 
   # the following will fire off the actual importers
   SimpleImporter.importers.each do |importer|
