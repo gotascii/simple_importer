@@ -1,6 +1,7 @@
 namespace :simple_importer do
-  desc "Some bone ter"
-  task :bonater do
-    puts SimpleImporter.inspect
+  desc "find SimpleImporter"
+  task :find do
+    require 'simple_importer'
+    puts SimpleImporter
   end
 end
