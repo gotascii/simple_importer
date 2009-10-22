@@ -1,21 +1,54 @@
-# Look in the tasks/setup.rb file for the various options that can be
-# configured in this Rakefile. The .rake files in the tasks directory
-# are where the options are used.
+require 'rubygems'
+require 'rake'
 
-load 'tasks/setup.rb'
+begin
+  require 'jeweler'
+  Jeweler::Tasks.new do |gem|
+    gem.name = "simple_importer"
+    gem.summary = %Q{Simple API for importing from csv, tsv and xml.}
+    gem.description = %Q{Simple API for importing from csv, tsv and xml.}
+    gem.email = "gotascii@gmail.com"
+    gem.homepage = "http://github.com/vigetlabs/simple_importer"
+    gem.authors = ["Justin Marney"]
+    gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
+    # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
+  end
+rescue LoadError
+  puts "Jeweler (or a dependency) not available. Install it with: sudo gem install jeweler"
+end
 
-ensure_in_path 'lib'
-require 'simple_importer'
+require 'rake/testtask'
+Rake::TestTask.new(:test) do |test|
+  test.libs << 'lib' << 'test'
+  test.pattern = 'test/**/test_*.rb'
+  test.verbose = true
+end
 
-task :default => 'spec:run'
+begin
+  require 'rcov/rcovtask'
+  Rcov::RcovTask.new do |test|
+    test.libs << 'test'
+    test.pattern = 'test/**/test_*.rb'
+    test.verbose = true
+  end
+rescue LoadError
+  task :rcov do
+    abort "RCov is not available. In order to run rcov, you must: sudo gem install spicycode-rcov"
+  end
+end
 
-PROJ.name = 'simple_importer'
-PROJ.authors = 'Justin Marney'
-PROJ.email = 'justin.marney@viget.com'
-PROJ.url = 'FIXME (project homepage)'
-PROJ.rubyforge_name = 'simple_importer'
+task :test => :check_dependencies
 
-PROJ.spec_opts << '--color'
-PROJ.version = SimpleImporter::VERSION
+task :default => :test
 
-# EOF
+require 'rake/rdoctask'
+Rake::RDocTask.new do |rdoc|
+  version = File.exist?('VERSION') ? File.read('VERSION') : ""
+
+  rdoc.rdoc_dir = 'rdoc'
+  rdoc.title = "simple_importer #{version}"
+  rdoc.rdoc_files.include('README*')
+  rdoc.rdoc_files.include('lib/**/*.rb')
+end
+
+require 'lib/tasks'

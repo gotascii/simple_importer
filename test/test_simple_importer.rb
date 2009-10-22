@@ -137,5 +137,12 @@ class SimpleImporterTest < Test::Unit::TestCase
     should "include SimpleImporter" do
       SimpleImporter::Importer.ancestors.include?(SimpleImporter)
     end
+
+    should "instance eval block on initialize" do
+      SimpleImporter::Importer.any_instance.expects(:bobo)
+      SimpleImporter::Importer.new do
+        bobo
+      end
+    end
   end
 end
