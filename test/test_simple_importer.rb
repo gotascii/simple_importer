@@ -125,7 +125,14 @@ class SimpleImporterTest < Test::Unit::TestCase
       @importer.run
     end
 
+    # run_callbacks
+    # [file].flatten.each do |f|
+    #   foreach_file.call(f) if foreach_file
+    #   CSV.foreach(f, csv_config, &foreach) if foreach
+    # end
+
     should "call CSV.foreach with file, csv_config when run" do
+      @importer.stubs(:foreach).returns(lambda{})
       @importer.stubs(:file).returns('file')
       @importer.stubs(:csv_config).returns('csv_config')
       CSV.expects(:foreach).with('file', 'csv_config')
@@ -133,6 +140,7 @@ class SimpleImporterTest < Test::Unit::TestCase
     end
 
     should "call CSV.foreach with each file if file is an array" do
+      @importer.stubs(:foreach).returns(lambda{})
       @importer.stubs(:file).returns(['file1', 'file2'])
       @importer.stubs(:csv_config).returns('csv_config')
       CSV.expects(:foreach).with('file1', 'csv_config')
