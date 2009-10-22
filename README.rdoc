@@ -2,38 +2,146 @@
 
 Simple API for importing csv files.
 
-== Usage
+== Defining importers
 
-define custom importers by including simple_importer
-  class CrazyImporter
-    include SimpleImporter
+The basic importer has a name, file, and a foreach block.
 
-    file 'data.csv'
-    callbacks true
-    headers true
-    header_converters :symbol
-    converters :all
-
-    before_import :delete_all
+  importer :items do
+    file 'items.csv'
 
     foreach do |row|
-    end
-
-    def delete_all
+      Item.create(:name => row[:name])
     end
   end
 
-run your importers
-  CrazyImporter.run
+simple_importer uses fastercsv, which replaces the csv standard lib in ruby1.9. Importers have configuration options that match those of fastercsv. The foreach block is called for each row in the csv file. The argument passed into the foreach block is a fastercsv row created with the specified configuration options.
 
-== TODO
+  importer :items do
+    file 'items.csv'
 
-find files automatically
-rake tasks generated automatically
+    # all fastercsv options are supported
+    headers false
+    converters :numeric
+    # etc..
+
+    foreach do |row|
+      Item.create(:name => row[:name])
+    end
+  end
+
+Importers have a default configuration that matches the following importer.
+
+  importer :items do
+    file 'items.csv'
+
+    # default configuration
+    col_sep ","
+    row_sep :auto
+    quote_char '"'
+    field_size_limit nil
+    converters :all
+    unconverted_fields nil
+    headers true
+    return_headers false
+    header_converters :symbol
+    skip_blanks false
+    force_quotes false
+
+    foreach do |row|
+      Item.create(:name => row[:name])
+    end
+  end
+
+== Before callback
+
+Define before_filter-style callbacks in the form of the before block. This block is run once before the importer run.
+
+  importer :items do
+    file 'items.csv'
+
+    before do
+      Item.delete_all
+    end
+
+    foreach do |row|
+      Item.create(:name => row[:name])
+    end
+  end
+
+== File processing
+
+Passing an array of file paths to the file configuration field will process all the rows in each file.
+
+  importer :items do
+    file Dir.glob("data/*.csv")
+
+    foreach do |row|
+      Item.create(:name => row[:name])
+    end
+  end
+
+Use the foreach_file block to add per-file behavior.
+
+  importer :items do
+    file Dir.glob("data/*.csv")
+
+    foreach_file do |file|
+      List.create(:name => File.basename(file, ".csv"))
+    end
+
+    foreach do |row|
+      Item.create(:name => row[:name])
+    end
+  end
+
+Nest the foreach block to give your row processing block access to foreach_file block variables.
+
+  importer :items do
+    file Dir.glob("data/*.csv")
+
+    foreach_file do |file|
+      list = List.create(:name => File.basename(file, ".csv"))
+
+      foreach do |row|
+        Item.create(:name => row[:name], :list => list)
+      end
+    end
+  end
+
+== Loading and running importers
+
+simple_importer provides a method that will find and load importer definitions in importers, lib/importers, and app/importers directories.
+
+  # importer definition is in lib/importers/item.rb
+  SimpleImporter.find_importers
+
+SimpleImporter has a collection of importers and each importer can be run once it has been loaded.
+
+  # the following will fire off the actual importers
+  SimpleImporter.importers.each do |importer|
+    importer.run
+  end
+
+== Rake tasks and autoloaded importers
+
+simple_importer provides rake tasks to run importers individually or all at once.
+
+  # add this to your rakefile
+  # lib/tasks/simple_importer.rake is a good place in your rails app
+  require 'simple_importer/tasks'
+
+rake -T simple_importer will show a rake task for each importer as well as an import task which runs all of the importers. Descriptions defined in the importer will be used for the rake task description.
+
+  importer :items do
+    file 'items.csv'
+    desc 'Import all of the cool items'
+
+    ...
+  end
 
 == Requirements
 
-* fast_csv (if you are not using ruby 1.9)
+* fastercsv (if you are not using ruby 1.9)
 
 == Note on Patches/Pull Requests 
 

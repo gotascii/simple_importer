@@ -1,8 +1,10 @@
-require 'csv'
+require "csv"
 
-# require 'lib/simple_importer'
-# SimpleImporter.find_importers
-# SimpleImporter[:crazy].run
+if CSV.const_defined? :Reader
+  require 'fastercsv'
+  Object.send(:remove_const, :CSV)
+  CSV = FasterCSV
+end
 
 module SimpleImporter
   def self.included(base)
@@ -15,13 +17,17 @@ module SimpleImporter
       METH
     end
 
-    [:before, :foreach].each do |meth|
+    [:before, :foreach, :foreach_file].each do |meth|
       base.class_eval <<-METH
         def #{meth}(&block)
           config[:#{meth}] = block if block_given?
           config[:#{meth}]
         end
       METH
+    end
+    
+    base.class_eval do
+      attr_accessor :name
     end
   end
 
@@ -43,19 +49,19 @@ module SimpleImporter
   end
 
   def self.config_meths
-    csv_config_meths + [:file, :callbacks]
+    csv_config_meths + [:file, :callbacks, :desc]
   end
 
   def self.importers
-    @importers ||= {}
+    @importers ||= []
   end
 
   def self.importer(name, &block)
-    importers[name] = Importer.new(&block)
+    importers << Importer.new(name, &block)
   end
 
   def self.[](name)
-    importers[name]
+    importers.select{|i| i.name == name}.first
   end
 
   def config
@@ -63,7 +69,8 @@ module SimpleImporter
       :callbacks => true,
       :headers => true,
       :header_converters => :symbol,
-      :converters => :all
+      :converters => :all,
+      :desc => 'a simple_import importer'
     }
   end
 
@@ -73,7 +80,10 @@ module SimpleImporter
 
   def run
     run_callbacks
-    CSV.foreach(file, csv_config, &foreach)
+    [file].flatten.each do |f|
+      foreach_file.call(f) if foreach_file
+      CSV.foreach(f, csv_config, &foreach) if foreach
+    end
   end
 
   def run_callbacks
@@ -83,7 +93,8 @@ module SimpleImporter
   class Importer
     include SimpleImporter
 
-    def initialize(&block)
+    def initialize(name, &block)
+      self.name = name
       instance_eval(&block)
     end
   end

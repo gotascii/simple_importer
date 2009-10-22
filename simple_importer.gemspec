@@ -10,7 +10,6 @@ begin
     gem.email = "gotascii@gmail.com"
     gem.homepage = "http://github.com/gotascii/simple_importer"
     gem.authors = ["gotascii"]
-    gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
 rescue LoadError

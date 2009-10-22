@@ -11,19 +11,18 @@ class SimpleImporterTest < Test::Unit::TestCase
     end
 
     should "have an importers hash field" do
-      SimpleImporter.importers.should == {}
+      SimpleImporter.importers.should == []
     end
 
     should "create a new importer" do
-      block = lambda{ 'omg' }
-      SimpleImporter::Importer.expects(:new).with(&block)
-      SimpleImporter.importer(:bob, &block)
+      SimpleImporter::Importer.expects(:new).with(:bob)
+      SimpleImporter.importer(:bob)
     end
 
     should "add new importer to importers" do
       SimpleImporter::Importer.stubs(:new).returns('hi')
       SimpleImporter.importer(:bob)
-      SimpleImporter.importers[:bob].should == 'hi'
+      SimpleImporter.importers.should == ['hi']
     end
 
     should "look in importer, app/importers, and lib/importers for importers" do
@@ -36,12 +35,13 @@ class SimpleImporterTest < Test::Unit::TestCase
 
     should "return csv_config_meths plus file and callbacks for config_meths" do
       SimpleImporter.stubs(:csv_config_meths).returns([:yo])
-      SimpleImporter.config_meths.should == [:yo, :file, :callbacks]
+      SimpleImporter.config_meths.should == [:yo, :file, :callbacks, :desc]
     end
 
-    should "forward [] to importers" do
-      SimpleImporter.importers.expects(:[]).with(:omg).returns('hey')
-      SimpleImporter[:omg].should == 'hey'
+    should "return first importer whos name matches arg for []" do
+      importer = stub(:name => :omg)
+      SimpleImporter.stubs(:importers).returns([importer])
+      SimpleImporter[:omg].should == importer
     end
   end
 
@@ -131,6 +131,14 @@ class SimpleImporterTest < Test::Unit::TestCase
       CSV.expects(:foreach).with('file', 'csv_config')
       @importer.run
     end
+
+    should "call CSV.foreach with each file if file is an array" do
+      @importer.stubs(:file).returns(['file1', 'file2'])
+      @importer.stubs(:csv_config).returns('csv_config')
+      CSV.expects(:foreach).with('file1', 'csv_config')
+      CSV.expects(:foreach).with('file2', 'csv_config')
+      @importer.run
+    end
   end
 
   context "The Importer class" do
@@ -140,7 +148,7 @@ class SimpleImporterTest < Test::Unit::TestCase
 
     should "instance eval block on initialize" do
       SimpleImporter::Importer.any_instance.expects(:bobo)
-      SimpleImporter::Importer.new do
+      SimpleImporter::Importer.new(:hi) do
         bobo
       end
     end
