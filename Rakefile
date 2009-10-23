@@ -5,8 +5,8 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "simple_importer"
-    gem.summary = %Q{Simple API for importing from csv, tsv and xml.}
-    gem.description = %Q{Simple API for importing from csv, tsv and xml.}
+    gem.summary = %Q{Simple api for importing from csv.}
+    gem.description = %Q{Provides a simple dsl for creating csv import tasks.}
     gem.email = "gotascii@gmail.com"
     gem.homepage = "http://github.com/vigetlabs/simple_importer"
     gem.authors = ["Justin Marney"]
