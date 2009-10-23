@@ -56,6 +56,12 @@ class SimpleImporterTest < Test::Unit::TestCase
       end
     end
 
+    should "return the right gd hash for csv_config" do
+      SimpleImporter.stubs(:csv_config_meths).returns([:one, :two])
+      @importer.stubs(:config).returns({:one => 1, :two => 2, :three => 3})
+      @importer.csv_config.should == {:one => 1, :two => 2}
+    end
+
     should "have fields for every CSV::DEFAULT_OPTIONS" do
       CSV::DEFAULT_OPTIONS.keys.each do |meth|
         @importer.send(meth, 'val')
@@ -124,12 +130,6 @@ class SimpleImporterTest < Test::Unit::TestCase
       @importer.expects(:run_callbacks)
       @importer.run
     end
-
-    # run_callbacks
-    # [file].flatten.each do |f|
-    #   foreach_file.call(f) if foreach_file
-    #   CSV.foreach(f, csv_config, &foreach) if foreach
-    # end
 
     should "call CSV.foreach with file, csv_config when run" do
       @importer.stubs(:foreach).returns(lambda{})

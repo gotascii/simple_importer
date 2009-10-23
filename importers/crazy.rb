@@ -1,3 +1,7 @@
+# require 'lib/simple_importer'
+# SimpleImporter.find_importers
+# SimpleImporter.importers.first.run
+
 importer :crazy do
   file 'data/people.csv'
   callbacks true

@@ -75,7 +75,12 @@ module SimpleImporter
   end
 
   def csv_config
-    config.select{|k,v| SimpleImporter.csv_config_meths.include?(k)}
+    ret = {}
+    config.each do |k, v|
+      ret[k] = config[k] if SimpleImporter.csv_config_meths.include?(k)
+    end
+    ret
+    # config.select{|k,v| SimpleImporter.csv_config_meths.include?(k)}
   end
 
   def run
